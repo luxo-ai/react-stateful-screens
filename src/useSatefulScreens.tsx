@@ -37,6 +37,48 @@ type Action<State, Event extends KeyLike> =
       ctxUpdater?: (state: State) => State;
     };
 
+/**
+ * `useStatefulScreens` is a custom hook that abstracts a state machine for handling screen transitions in a React application.
+ * Given an initial screen, state, and a configuration of screens, it manages screen transitions and provides utility functions to navigate between screens.
+ *
+ * @template State - The type that represents the shared state/context across screens.
+ * @template StateKey - A union of keys representing individual screens/states in the state machine.
+ * @template Event - A union of event keys that can trigger transitions between screens.
+ *
+ * @param {HookArgs<State, StateKey, Event>} config - The configuration object for the state machine.
+ * @param {StateKey} config.initialScreen - The starting screen of the state machine.
+ * @param {State} config.initialState - The initial shared state/context for the screens.
+ * @param {StateMachineConfig<{ render: (props: ScreenProps<Event, State>) => JSX.Element | null }, StateKey, Event>} config.screens - The configuration of screens, transitions, and their associated render methods.
+ * @param {(state: State) => void} [config.onExit] - Optional callback executed when the state machine reaches a terminal state.
+ *
+ * @returns {{
+ *   goBack: (() => void) | null,
+ *   Screen: () => JSX.Element | null
+ * }} An object containing:
+ * - `goBack`: A function to navigate back to the previous screen, or `null` if there's no previous screen.
+ * - `Screen`: A React component representing the current screen based on the state machine's current state.
+ *
+ * @example
+ * const config = {
+ *   initialScreen: 'welcome',
+ *   initialState: { user: null },
+ *   screens: {
+ *     welcome: {
+ *       render: (props) => <WelcomeScreen {...props} />,
+ *       on: { login: 'dashboard' }
+ *     },
+ *     dashboard: {
+ *       render: (props) => <DashboardScreen {...props} />,
+ *       on: {}
+ *     }
+ *   }
+ * };
+ *
+ * const MyComponent = () => {
+ *   const { goBack, Screen } = useStatefulScreens(config);
+ *   return <Screen />;
+ * };
+ */
 const useStatefulScreens = <State, StateKey extends KeyLike, Event extends KeyLike>(
   config: HookArgs<State, StateKey, Event>
 ) => {

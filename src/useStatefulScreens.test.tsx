@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-hooks/dom';
 import useStatefulScreens from './useStatefulScreens';
 
 describe('useStatefulScreens Hook', () => {

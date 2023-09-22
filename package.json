@@ -1,0 +1,65 @@
+{
+  "name": "react-stateful-screens",
+  "version": "1.0.0",
+  "repository": "https://github.com/luxo-ai/react-stateful-screens",
+  "author": "luxo-ai luxo.ai@proton.me",
+  "license": "MIT",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.modern.js",
+  "types": "dist/index.d.ts",
+  "source": "src/index.tsx",
+  "scripts": {
+    "build:dev": "microbundle watch --no-compress --format modern,cjs",
+    "build": "microbundle --format modern,cjs --no-sourcemap",
+    "lint": "eslint ./src --ext .js,.ts,.jsx,.tsx",
+    "test": "node dist/index.js"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.20",
+    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-typescript": "^7.22.15",
+    "@testing-library/react": "^14.0.0",
+    "@types/jest": "^29.5.5",
+    "@types/react": "^18.2.22",
+    "@typescript-eslint/eslint-plugin": "^6.7.2",
+    "@typescript-eslint/parser": "^6.7.2",
+    "babel-jest": "^29.7.0",
+    "eslint": "^8.49.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.33.2",
+    "microbundle": "^0.15.1",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2"
+  },
+  "files": [
+    "dist"
+  ],
+  "jest": {
+    "transform": {
+      "^.+\\.(ts|tsx)$": "babel-jest"
+    },
+    "testRegex": "\\.(test)\\.(ts|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ]
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "@types/lodash.clonedeep": "^4.5.7",
+    "lodash.clonedeep": "^4.5.0"
+  }
+}

@@ -1,6 +1,6 @@
 import type { KeyLike, SafeIntersection } from './helpers/types';
 
-const TERMINAL_KEY = 'TERM';
+export const TERMINAL_KEY = 'TERM';
 export type TerminalKey = typeof TERMINAL_KEY;
 
 export const isTerminalKey = (key: KeyLike): key is TerminalKey => {

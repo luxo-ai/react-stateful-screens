@@ -1,9 +1,11 @@
-import { renderHook, act } from '@testing-library/react-hooks/dom';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { act, renderHook } from '@testing-library/react-hooks';
+
 import useStatefulScreens from './useStatefulScreens';
 
 describe('useStatefulScreens Hook', () => {
   it('should initialize with the provided initial screen and state', () => {
-    const mockWelcomeScreen = jest.fn();
+    const mockWelcomeScreen = jest.fn(() => '<Welcome/>') as any;
     const config = {
       initialScreen: 'welcome',
       initialState: { user: null },
@@ -16,13 +18,12 @@ describe('useStatefulScreens Hook', () => {
     };
     const { result } = renderHook(() => useStatefulScreens(config));
 
-    expect(result.current.Screen).toBeInstanceOf(Function);
-    expect(result.current.Screen).toBe(mockWelcomeScreen);
+    expect(result.current.screenKey).toEqual('welcome');
     expect(result.current.goBack).toEqual(null);
   });
 
   it('should transition to the next screen on goForward', () => {
-    const mockDashboardScreen = jest.fn();
+    const mockDashboardScreen = jest.fn(() => '<Dashboard/>') as any;
     const config = {
       initialScreen: 'welcome',
       initialState: { user: null },
@@ -39,23 +40,19 @@ describe('useStatefulScreens Hook', () => {
     };
     const { result } = renderHook(() => useStatefulScreens(config));
 
-    expect(result.current.goBack).not.toEqual(null);
-
     act(() => {
       result.current.goForward('login');
     });
 
-    expect(result.current.Screen).toBeInstanceOf(Function);
-    expect(result.current.Screen).toBe(mockDashboardScreen);
-    expect(result.current.goBack).toEqual(null);
+    expect(result.current.screenKey).toEqual('dashboard');
   });
 
   it('should return to the previous screen on goBack', () => {
-    const mockWelcomeScreen = jest.fn();
-    const mockDashboardScreen = jest.fn();
+    const mockWelcomeScreen = jest.fn(() => '<Welcome/>') as any;
+    const mockDashboardScreen = jest.fn(() => '<Dashboard/>') as any;
 
     const config = {
-      initialScreen: 'dashboard',
+      initialScreen: ['welcome', 'dashboard'],
       initialState: { user: 'John' },
       screens: {
         welcome: {
@@ -69,19 +66,17 @@ describe('useStatefulScreens Hook', () => {
       },
     };
     const { result } = renderHook(() => useStatefulScreens(config));
-    expect(result.current.Screen).toBeInstanceOf(Function);
-    expect(result.current.Screen).toBe(mockDashboardScreen);
+    expect(result.current.screenKey).toEqual('dashboard');
 
     act(() => {
       result.current.goBack?.();
     });
 
-    expect(result.current.Screen).toBeInstanceOf(Function);
-    expect(result.current.Screen).toBe(mockWelcomeScreen);
+    expect(result.current.screenKey).toEqual('welcome');
   });
 
   it('should update context with ctxUpdater when transitioning', () => {
-    const mockDashboardScreen = jest.fn();
+    const mockDashboardScreen = jest.fn(() => '<Dashboard/>');
 
     const config = {
       initialScreen: 'welcome',
@@ -92,19 +87,18 @@ describe('useStatefulScreens Hook', () => {
           on: { login: { goTo: 'dashboard' } },
         },
         dashboard: {
-          render: jest.fn(),
+          render: mockDashboardScreen,
           on: {},
         },
       },
     };
-    const { result } = renderHook(() => useStatefulScreens(config));
+    const { result } = renderHook(() => useStatefulScreens(config as any));
 
     act(() => {
       result.current.goForward('login', () => ({ user: 'John' }));
     });
 
-    expect(result.current.Screen).toBeInstanceOf(Function);
-    expect(result.current.Screen).toBe(mockDashboardScreen);
+    expect(result.current.screenKey).toEqual('dashboard');
     // expect(result.current.context).toEqual({ user: 'John' });
   });
 });

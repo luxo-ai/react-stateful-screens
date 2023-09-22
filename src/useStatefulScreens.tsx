@@ -6,8 +6,8 @@ import type { KeyLike } from './helpers/types';
 import type { StateMachineConfig, TerminalKey } from './stateMachine';
 import stateMachineFactory, { isTerminalKey } from './stateMachine';
 
-type HookArgs<State, StateKey extends KeyLike, Event extends KeyLike> = {
-  initialScreen: StateKey;
+export type HookArgs<State, StateKey extends KeyLike, Event extends KeyLike> = {
+  initialScreen: StateKey | StateKey[];
   initialState: State;
   screens: StateMachineConfig<
     { render: (props: ScreenProps<Event, State>) => JSX.Element | null },
@@ -21,6 +21,7 @@ export type ScreenProps<Event extends KeyLike, State> = {
   state: State;
   goForward: (event: Event, onProgress?: (state: State) => State) => void;
   goBack: (() => void) | null;
+  reset: () => void;
 };
 
 type ReducerState<State, StateKey> = {
@@ -97,7 +98,9 @@ const useStatefulScreens = <State, StateKey extends KeyLike, Event extends KeyLi
         case 'reset':
           return {
             context: config.initialState,
-            history: [config.initialScreen],
+            history: Array.isArray(config.initialScreen)
+              ? config.initialScreen
+              : [config.initialScreen],
           };
 
         case 'forward':
@@ -117,8 +120,14 @@ const useStatefulScreens = <State, StateKey extends KeyLike, Event extends KeyLi
             onTransition,
             onExit: config.onExit,
           });
+
+          const nextHistory =
+            currentStateKey !== nextStateKey
+              ? stackPush(state.history, nextStateKey)
+              : state.history;
+
           return {
-            history: stackPush(state.history, nextStateKey),
+            history: nextHistory,
             context: nextContext,
           };
 
@@ -127,7 +136,7 @@ const useStatefulScreens = <State, StateKey extends KeyLike, Event extends KeyLi
       }
     },
     {
-      history: [config.initialScreen],
+      history: Array.isArray(config.initialScreen) ? config.initialScreen : [config.initialScreen],
       context: config.initialState,
     }
   );
@@ -143,6 +152,10 @@ const useStatefulScreens = <State, StateKey extends KeyLike, Event extends KeyLi
     [dispatch]
   );
 
+  const reset = useCallback(() => {
+    dispatch({ type: 'reset' });
+  }, [dispatch]);
+
   const currentScreenKey = stackPeak(state.history);
   const ScreenComponent =
     currentScreenKey && !isTerminalKey(currentScreenKey) && config.screens[currentScreenKey].render;
@@ -150,9 +163,16 @@ const useStatefulScreens = <State, StateKey extends KeyLike, Event extends KeyLi
   return {
     goForward,
     goBack,
+    reset: reset,
+    screenKey: currentScreenKey,
     Screen: () =>
       ScreenComponent ? (
-        <ScreenComponent state={state.context} goForward={goForward} goBack={goBack} />
+        <ScreenComponent
+          state={state.context}
+          goForward={goForward}
+          goBack={goBack}
+          reset={reset}
+        />
       ) : null,
   };
 };

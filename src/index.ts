@@ -1,2 +1,2 @@
-import useStatefulScreens from './useSatefulScreens';
+import useStatefulScreens from './useStatefulScreens';
 export default useStatefulScreens;

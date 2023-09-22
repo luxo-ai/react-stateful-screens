@@ -148,6 +148,7 @@ const useStatefulScreens = <State, StateKey extends KeyLike, Event extends KeyLi
     currentScreenKey && !isTerminalKey(currentScreenKey) && config.screens[currentScreenKey].render;
 
   return {
+    goForward,
     goBack,
     Screen: () =>
       ScreenComponent ? (
